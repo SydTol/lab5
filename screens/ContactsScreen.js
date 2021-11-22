@@ -13,6 +13,7 @@ import {
 export const ContactsScreen = (props) => {
   const [fetchedContacts, setFetchedContacts] = useState([]);
   const [contactsLoaded, setContactsLoaded] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState("");
 
   const filters = [
     "No filter",
@@ -23,7 +24,28 @@ export const ContactsScreen = (props) => {
   useEffect(() => {
     fetchContacts();
   }, []);
+  const filterContact = (contact) => {
+    switch (selectedFilter) {
+      case "No filter":
+        return true;
 
+      case "First names that contain the letter 'a'":
+        if (contact.name.first.includes("a")) {
+          return true;
+        } else {
+          return false;
+        }
+      case "Older than 50":
+        if (contact.dob.age > 50) {
+          return true;
+        } else {
+          return false;
+        }
+
+      default:
+        return true;
+    }
+  };
   const onButtonPress = (contact) => {
     props.navigation.navigate("ViewDetailsScreen", {
       contactObject: contact,
@@ -39,6 +61,7 @@ export const ContactsScreen = (props) => {
     setFetchedContacts(contacts.results);
     setContactsLoaded(true);
   };
+
   if (contactsLoaded === false) {
     return (
       <View style={styles.container}>
@@ -48,10 +71,20 @@ export const ContactsScreen = (props) => {
   } else {
     return (
       <View style={styles.container}>
+        <Picker
+          style={{ width: 325, height: 50 }}
+          selectedValue={selectedFilter}
+          onValueChange={(newFilter) => setSelectedFilter(newFilter)}
+        >
+          {filters.map((item, index) => {
+            return <Picker.Item key={index} label={item} value={item} />;
+          })}
+        </Picker>
+
         <Button title="Fetch Contacts" onPress={() => fetchContacts()} />
         <FlatList
           keyExtractor={(item, index) => index.toString()}
-          data={fetchedContacts}
+          data={fetchedContacts.filter((contact) => filterContact(contact))}
           renderItem={({ item }) => {
             return (
               <View style={styles.listItem}>
