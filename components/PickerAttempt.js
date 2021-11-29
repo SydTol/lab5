@@ -14,7 +14,7 @@ export const PickerAttempt = (props) => {
     <Modal visible={true} animationType={"slide"} transparent={true}>
       <View
         style={{
-          margin: 20,
+          margin: 20, 
           padding: 20,
           backgroundColor: "#efefef",
           bottom: 20,
