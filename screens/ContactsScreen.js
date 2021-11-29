@@ -7,14 +7,19 @@ import {
   ActivityIndicator,
   FlatList,
   Picker,
+  TouchableOpacity,
+  Modal,
 } from "react-native";
-// import { contactList } from "../data/contacts";
+import { TextSizeBanner } from "../components/TextSizeBanner";
+import { getStyleSheet } from "../styles/Texts";
 
 export const ContactsScreen = (props) => {
   const [fetchedContacts, setFetchedContacts] = useState([]);
   const [contactsLoaded, setContactsLoaded] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("");
+  const [textSize, setTextSize] = useState("medium");
 
+  const styles = getStyleSheet(textSize);
   const filters = [
     "No filter",
     "First names that contain the letter 'a'",
@@ -49,6 +54,7 @@ export const ContactsScreen = (props) => {
   const onButtonPress = (contact) => {
     props.navigation.navigate("ViewDetailsScreen", {
       contactObject: contact,
+      textSizeSelected: textSize,
     });
   };
   const fetchContacts = async () => {
@@ -64,42 +70,57 @@ export const ContactsScreen = (props) => {
 
   if (contactsLoaded === false) {
     return (
-      <View style={styles.container}>
+      <View style={styles2.container}>
         <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   } else {
     return (
-      <View style={styles.container}>
+      <View style={styles2.container}>
         <Picker
           style={{ width: 325, height: 50 }}
           selectedValue={selectedFilter}
           onValueChange={(newFilter) => setSelectedFilter(newFilter)}
+          textStyle={{ fontSize: 20, color: "blue" }}
         >
           {filters.map((item, index) => {
             return <Picker.Item key={index} label={item} value={item} />;
           })}
         </Picker>
-
-        <Button title="Fetch Contacts" onPress={() => fetchContacts()} />
+        
+        <TouchableOpacity
+          style={styles2.buttonOp}
+          onPress={() => fetchContacts()}
+        >
+          <Text style={styles.text}>Fetch Contacts</Text>
+        </TouchableOpacity>
         <FlatList
           keyExtractor={(item, index) => index.toString()}
           data={fetchedContacts.filter((contact) => filterContact(contact))}
           renderItem={({ item }) => {
             return (
-              <View style={styles.listItem}>
-                <Text>{item.name.first}</Text>
-                <Button title="more info" onPress={() => onButtonPress(item)} />
+              <View style={styles2.listItem}>
+                <Text style={styles.text}>{item.name.first}</Text>
+                <TouchableOpacity
+                  style={styles2.buttonOp}
+                  onPress={() => onButtonPress(item)}
+                >
+                  <Text style={styles.text}>More Info</Text>
+                </TouchableOpacity>
               </View>
             );
           }}
         />
+        <Text>Text size:</Text>
+        <View style={styles2.container}>
+          <TextSizeBanner onButtonPress={(textSize) => setTextSize(textSize)} />
+        </View>
       </View>
     );
   }
 };
 
-const styles = StyleSheet.create({
+const styles2 = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -116,5 +137,11 @@ const styles = StyleSheet.create({
     borderColor: "black",
     borderWidth: 1,
     marginVertical: 2,
+  },
+  buttonOp: {
+    height: 30,
+    backgroundColor: "skyblue",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
